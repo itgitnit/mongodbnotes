@@ -1,0 +1,268 @@
+To Run MongoDb :- "C:\Program Files\MongoDB\Server\4.4\bin\mongod.exe" 
+
+C :- Create Operations 
+R :- Read Operations
+U :- Update Operations
+D :- Delete/Remove Operations
+
+Commands :=
+1. show dbs -> First Command
+2. use students -> start to create database but it not show anything.
+3. db.studentData.insertOne({	
+    "name": "Hitesh",
+	"email": "hitesh@hiteshchoudhary.com",
+	"contact": "9999999999",
+	"courseCount": 4,
+	"isVerified": true
+    })
+4. db.studentData.find() -> This shows data of database you created.
+5. db.studentData.find().pretty() -> Shows data in organized manner.
+
+-> Three A of mongo DB :- 
+A = Application
+A = Analytics
+A = Admin
+
+==>
+
+Create := insertOne (data,options)
+		  insertMany(data,options)
+
+Read := find(filter,options) -> Here filter is same as where clause.
+		findOne(filter,options) -> This not return the only one, this return the first one which matches the criteria.
+
+Update := updateOne(filter,data,options)
+		  updateMany(filter,data,options)
+		  replaceOne(filter,data,options)
+
+Delete := deleteOne(filter,data,options)
+		  daleteMany(filter,options)
+
+DeleteOne == db.studentData.deleteOne({email: "marry@gmail.com"})
+
+UpdateOne == db.studentData.updateOne({courseCount: 4}, {$set: {fbloggedIn:"yes"}})
+
+UpdateMany == db.studentData.updateMany{{fbloggedIn: "yes"}, {$set: {delete: "yes"}}} 
+
+DeleteMany == db.studentData.deleteMany({}) //It deletes the whole database.
+
+InsertMany == db.studentData.insertMany([{//Data In Key Value Pairs},{//Data In Key Value Pairs}])
+
+//Find a particular data instead of all data.
+Find == db.studentData.find({courseCount: 4}).pretty()
+
+FindOne == db.studentData.findOne({courseCount: 4}).pretty() //FindOne     finds the first match.
+
+Greater Than(gt) == db.studentData.find({courseCount: {$gt: 1}}).pretty() // It returns the which having courseCount greater than 1, it works like where clause.
+
+
+Update == db.studentData.update({_id: ObjectId("123abc-w")}, {courseCount: 5}) // It not delete the data but it update the whole data with courseCount means it looks like it delete the whole data and id and courseCount are only look in tables.
+
+=> If you have so much data to show then db.studentData.find().pretty() command never shows all data at once. It takes 'it' command to show more.
+
+=> db.studentData.find().forEach((student) => {printjson(student)}) // This also print the whole data at once.
+
+=> Query For specific data == db.studentData.find().forEach((student) => {printjson(student.email)})
+
+=> Cursor == When you try to dumb information from the database. The actual information doesn't come directly until you say so. The information only come as a meta file. This meta file is a cursor. Cursor is a main data, it just a meta data means information about information. 
+
+=> db.studentData.find({}, {email: 1, _id: 0, name: 1}) //(Here, if something is 0 then it not shown anf if something is 1 then it shown. By default everything is 0 except object_id.)(And this command access data directly from the database.)
+
+=> db.studentData.find({}, {email: 1, _id: 0}).toArray() //(This give array of objects. This is much better way to handle the database)
+
+=> db.studentData.updateMany({}, {$set: {profilepic: {small: 50, med: 100, large: 200}}}) //It gives array to key, where key is just a key and value is array.
+
+=> db.studentData.find({"profilepic.med": 100}) // TO access the data with profile pic.
+
+=> db.studentData.updateOne({name: "Mark"}, {$set: {lastlogin: ["Monday", "Tuesday", "Wednesday"]}}) //Here we update the data with lastlogin having array of strings.
+
+=> To find the lastlogin == db.studentData.findOne({name: "Mark"}).lastlogin // It Gives ["Monday", "Tuesday", "Wednesday"] and we use findOne becoz we want only paticular data.
+
+=> What is Schema? == Schema is nothing but just a structure. Mysql has schema but MongoDB is little bit different.
+
+=> Schema In MongoDB == MongoDB is not purely schema less but we add table of data which already in database, but with some rules.
+
+=> Database Modelling == Before making any database we should ask some questions first, we should model our database first. Like?
+- What are predefined data sets(like password, username etc)?
+- Generated database(how many database we want on go?)?
+- Where you will need these data?(Where -> Mobile app, web app, homepage, about page etc)
+- How much filter is there per query? 
+- How many queries are being fired? (Becoz query is costly)
+- How often will you change the data? 
+
+
+▶️ One to One Relation ▶️
+
+Example:- For why we use one to one relation.
+use youtube
+db.users.insertOne({
+	name: "nikhil",
+	video: {topic: "FunTopic", length: 4}
+})
+Main problem with this is, let say if we want to want fetch only videos but give name with this but don't want name. So here comes one to one relation.
+
+Solution with one to one relation:-
+//Document1
+db.persons.insertOne({
+	name: "nikhil",
+	isVerified: true,
+	earning: 3000
+}) //After Enter//
+{
+	"acknowledged": true,
+	"insertedId": ObjectId("5c9bxxxxxxxx")
+}
+db.videos.insertOne({
+	topic: "Fun One",
+	length: 4,
+	creator: ObjectId("5c9bxxxxxxxx")
+})
+//After Enter//
+{
+	"acknowledged": true,
+	"insertedId": ObjectId("4vbhyyyyyyy")
+}
+Here we create two documents in same database, and make relation with same object_id. So if you want only videos we easily fetch.
+
+▶️ One to Many Relation ▶️ 
+It is like One user having many courses enrolled Or one user created many videos on you tube Or One comment having many replies.
+
+use comments
+switched to db comments
+
+db.comment.insertOne({
+	videoname: "reactjs", 
+    comment: "How to install reactjs", 
+    replies: ["rep112", "rep223"]
+})
+
+{
+	"acknowledged": true,
+	"insertedId": ObjectId("5c9bazzzzzzzz")
+}
+
+db.replies.insertMany([
+	{
+		_id: "rep112",
+		text: "you can use node"
+	},
+	{
+		_id: "rep223",
+		text: "you can use homebrew"
+	}
+])
+
+{
+	"acknowledged": true,
+	"insertedId": ["rep112", "rep223"]
+}
+
+db.replies.findOne()
+{
+	"_id": "rep112",
+	"text": "you can use node"
+}
+
+
+👽OR 2nd Method (Much better approach) ==>
+
+db.comment.insertOne({videoname: "reactjs", 
+comment: "How to install reactjs", 
+replies: [{_id: "rep112", text: "stuff 1"}, 
+          {_id: "rep223", text: "stuff 2"}]
+		  })
+
+{
+	"acknowledged": true,
+	"insertedId": ObjectId("5c9bazzzzzzzz")
+}
+
+##Output
+
+db.comment.findOne()
+{
+	"_id": ObjectId("5c9bazzzzzzzz"),
+	"videoname": "reactjs", 
+    "comment": "How to install reactjs", 
+    "replies": [
+		{
+			"_id": "rep112",
+			"text": "stuff 1"
+		}, 
+        {
+			"_id": "rep223", 
+			"text": "stuff 2"
+		}
+	]
+}
+
+
+▶️ Many to Many Relation ▶️
+It is like, let say one user purchase many courses and one course purchase by many users.
+
+use lco
+switched to db lco
+
+db.courses.insertOne({
+	name: react native",
+	price: 12.0
+})
+
+{
+	"acknowledged" : true,
+	"insertedId" : ObjectId("5czzzzzabbb35")
+}
+
+db.users.insertOne({
+	name: "nikhil",
+	isVerified: true
+})
+
+{
+	"acknowledged" : true,
+	"insertedId" : ObjectId("5czzzzzabbb36")
+}
+
+//This is SQL approach, in sql we always go through this approach, here course and user are interlinked with each other.
+
+db.purchase.insertOne({
+	productId: ObjectId("5czzzzzabbb35"),
+	customerId: ObjectId("5czzzzzabbb36")
+})
+
+{
+	"acknowledged" : true,
+	"insertedId" : ObjectId("5czzzzzabbb37")
+}
+
+👽OR
+
+MongoDB approach(Much better approach):-
+
+// Here we put course purchase into users instead of creating new document like we do it in sql, so when we find particular user so all courses he purchased it appear.
+
+db.users.updateOne({// here i put empty becoz i made only one entry but if you make entries then u should grap particular field}, {$set: {purchaseList: [{purchaseId: ObjectId("5czzzzzabbb35")}]}})
+
+{
+	"acknowledged" : true,
+	"matchedCount" : 1,
+	"modifiedCount" : 1
+}
+
+db.users.findOne()
+{
+	"_id" : ObjectId("5czzzzzabbb36"),
+	"name" : "nikhil",
+	"isVerified" : true,
+	"purchaseList" : [
+		{
+			"purchaseId" : ObjectId("5czzzzzabbb35")
+		}
+	]
+}
+
+//Some Photos to be attached for 24.
+
+//For 25 all this folder created
+
+28 se start
